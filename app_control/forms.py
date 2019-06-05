@@ -1,10 +1,17 @@
 from django import forms
+from .models import validate_user_unique_email_login
 
 
-class ContactForm1(forms.Form):
-    subject = forms.CharField(max_length=100)
-    sender = forms.EmailField()
+class EmailForm(forms.Form):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"autofocus": ""}),
+                             validators=[validate_user_unique_email_login])
 
 
-class ContactForm2(forms.Form):
-    message = forms.CharField(widget=forms.Textarea)
+class PasswordForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={"autofocus": ""}))
+
+
+class UserForm(forms.Form):
+    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={"autofocus": ""}))
+    last_name = forms.CharField(max_length=100)
+    file = forms.FileField

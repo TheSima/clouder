@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Clouder - Main{% endblock %}
+
+{% block content %}
+<p>Количество одинаковых фамилий: {{ count_not_unique_last_names }}</p>
+<p>Список одинаковых фамилий: {{ list_not_unique_last_names }}</p>
+{% endblock %}
