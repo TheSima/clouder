@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import render, redirect
 from formtools.wizard.views import SessionWizardView
+from django.db.models import Count
 
 
 # Create your views here.
@@ -26,7 +27,7 @@ class RegistrationWizard(SessionWizardView):
         user.save()
         # Authenticate user
         login(self.request, user)
-        return redirect('main')
+        return redirect('dashboard')
 
     def get_context_data(self, form, **kwargs):
         context = super(RegistrationWizard, self).get_context_data(form=form, **kwargs)
@@ -64,12 +65,29 @@ def dashboard_view(request):
     if not user.is_authenticated:
         return redirect('main')
     # Render dashboard.html
-    # DISTINCT not work in sqlite.
-    count_unique_last_name = 0
-    list_not_unique_last_names = []
-
     context = {
-        "count_not_unique_last_names" : count_unique_last_name,
-        "list_not_unique_last_names" : list_not_unique_last_names
+        "count_not_unique_last_names" : get_count_not_unique_last_name(),
+        "list_not_unique_last_names" : get_list_not_unique_last_names()
     }
     return render(request, 'dashboard.html', context)
+
+
+def get_list_not_unique_last_names():
+    field_last_name = 'last_name'
+    qs = User.objects.values(field_last_name).order_by(field_last_name).annotate(count=Count(field_last_name))\
+        .filter(count__gt=1).values('first_name', field_last_name, 'email', 'is_active')
+    qs_not_unique_last_names = User.objects.values(field_last_name).order_by(field_last_name).annotate(count=Count(field_last_name)) \
+        .filter(count__gt=1).values(field_last_name)
+    res = []
+    for last_name in (v[field_last_name] for v in qs_not_unique_last_names):
+        res.extend(
+            ("{} {} - {} is active : {}".format(v.first_name, v.last_name,v.email, v.is_active)
+             for v in User.objects.filter(last_name=last_name))
+        )
+    return res
+
+
+def get_count_not_unique_last_name():
+    field_last_name = 'last_name'
+    return User.objects.values(field_last_name).order_by(field_last_name).annotate(count=Count(field_last_name))\
+        .filter(count__gt=1).count()
