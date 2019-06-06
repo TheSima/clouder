@@ -1,0 +1,5 @@
+venv/
+clouder/__pycache__/
+app_control/__pycache__/
+.idea/
+db.sqlite3
