@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Clouder - Main{% endblock %}
+
+{% block content %}
+    <p>Количество одинаковых фамилий: {{ count_not_unique_last_names }}</p>
+    <p>Список пользователей с одинаковыми фамилиями:</p>
+    <ul>
+    {% for user_str in list_not_unique_last_names %}
+        <li><p>{{ user_str }}</p></li>
+    {% endfor %}
+    </ul>
+{% endblock %}
